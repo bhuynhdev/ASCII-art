@@ -1,5 +1,5 @@
 from PIL import Image, ImageEnhance
-import os
+import sys, os
 import lightness
 
 # 65 characters correspond to 65 level of brightness
@@ -46,27 +46,32 @@ def make_ascii(Image, ASCII_CHARS, outfile):
 
 
 if __name__ == "__main__":
-    image_path = input("Enter image path: ")
-    
-    # Outpath = filename(without extension) + "TXT"
-    out_path = os.path.basename(image_path).split('.')[0] + ".txt"
-
-    # Open image file
-    try:
-        Im = Image.open(image_path)
-    except FileNotFoundError:
-        print("File not found. Check path again.")
+    l = len(sys.argv)
+    if l not in (2, 4):
+        print("Usage: python3 ascii.py imageFilePath [new_width] [contrast_ratio]")
     else:
-        print("Successfully loaded image")
-        print(Im.size)
+        image_path = sys.argv[1]
+        new_width, contrast_ratio = ((int(sys.argv[2]), float(sys.argv[3]))
+                                     if l == 4 else (300, 1.9))
 
-    # Open output file for writing 
-    with open(out_path, 'w') as ascii_text:
-        # Resize image to fit screen
-        Im_smaller = resize_keep_ratio(Im, 300)
+        # Open image file
+        try:
+            Im = Image.open(image_path)
+        except FileNotFoundError:
+            print("File not found. Check input again.")
+            print("Usage: python3 ascii.py imageFilePath [new_width] [contrast_ratio]")
+        else:
+            print("Successfully loaded image")
+            print(Im.size)
+            # Resize image to fit screen
+            Im_smaller = resize_keep_ratio(Im, new_width)
 
-        # Increase contrast for better ASCII art
-        Im_contrast = change_contrast(Im_smaller, 2.1)
+            # Increase contrast for better ASCII art
+            Im_contrast = change_contrast(Im_smaller, contrast_ratio)
 
-        # Create ASCII Art and write out to file
-        make_ascii(Im_contrast, ASCII_CHARS, ascii_text)
+            # Outpath = filename(without extension) + "TXT"
+            out_path = os.path.basename(image_path).split('.')[0] + ".txt"
+
+            # Open output file for writing 
+            with open(out_path, 'w') as ascii_text:
+                make_ascii(Im_contrast, ASCII_CHARS, ascii_text)
