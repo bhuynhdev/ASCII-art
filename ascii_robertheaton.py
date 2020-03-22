@@ -3,6 +3,7 @@
 
 from PIL import Image
 import subprocess
+from colorama import Fore, Style
 
 ASCII_CHARS = "`^\",:;Il!i~+_-?][}{1)(|\\/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$"
 MAX_PIXEL_VALUE = 255
@@ -12,7 +13,7 @@ def get_pixel_matrix(img, height):
     pixels = list(img.getdata())
     return [pixels[i:i+img.width] for i in range(0, len(pixels), img.width)]
 
-def get_intensity_matrix(pixels_matrix, algo_name='max_min'):
+def get_intensity_matrix(pixels_matrix, algo_name='average'):
     intensity_matrix = []
     for row in pixels_matrix:
         intensity_row = []
@@ -64,14 +65,15 @@ def convert_to_ascii(intensity_matrix, ascii_chars):
 
     return ascii_matrix
 
-def print_ascii_matrix(ascii_matrix):
+def print_ascii_matrix(ascii_matrix, text_color):
     for row in ascii_matrix:
         line = [p+p+p for p in row]
-        print("".join(line))
+        print(text_color + "".join(line))
 
+    print(Style.RESET_ALL)
 
-filepath = "shinobu.jpg"
-
+filepath = "./test.jpg"
+subprocess.call(["imagesnap", filepath, "-w", "2"])
 
 img = Image.open(filepath)
 pixels = get_pixel_matrix(img, 1000)
@@ -82,4 +84,4 @@ intensity_matrix = normalize_intensity_matrix(intensity_matrix)
 #intensity_matrix = invert_intensity_matrix(intensity_matrix)
 
 ascii_matrix = convert_to_ascii(intensity_matrix, ASCII_CHARS)
-print_ascii_matrix(ascii_matrix)
+print_ascii_matrix(ascii_matrix, Fore.GREEN)
